@@ -1,0 +1,19 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "user1",
+      "email": "user1@tugas.com"
+    },
+    {
+      "id": 2,
+      "username": "user2",
+      "email": "user2@tugas.com"
+    },
+    {
+      "id": "3",
+      "username": "user3-edit",
+      "email": "user3@tugas.com"
+    }
+  ]
+}
