@@ -1,0 +1,41 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/Perpustakaan/Buku.sol": {
+      "content": ""
+    },
+    "contracts/Perpustakaan/Interface/IPerpustakaan.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\npragma solidity 0.8.19;\r\n\r\ninterface IPerpustakaan {\r\n    function bukuCount() external view returns (uint256);\r\n\r\n    function isAdmin(address _address) external view returns (bool);\r\n\r\n    function tambahBuku(\r\n        string calldata _ISBN,\r\n        string calldata _judul,\r\n        uint256 _tahunDibuat,\r\n        string calldata _penulis\r\n    ) external;\r\n\r\n    function updateBuku(\r\n        string calldata _ISBN,\r\n        string calldata _judul,\r\n        uint256 _tahunDibuat,\r\n        string calldata _penulis\r\n    ) external;\r\n\r\n    function hapusBuku(string calldata _ISBN) external;\r\n\r\n    function getDataBuku(string calldata _ISBN)\r\n        external\r\n        view\r\n        returns (\r\n            string memory,\r\n            string memory,\r\n            uint256,\r\n            string memory\r\n        );\r\n}\r\n"
+    },
+    "contracts/Perpustakaan/Perpustakaan.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\npragma solidity 0.8.19;\r\n\r\n// Kontrak pintar Perpustakaan\r\ncontract Perpustakaan {\r\n    struct Buku {\r\n        string ISBN;\r\n        string judul;\r\n        uint256 tahunDibuat;\r\n        string penulis;\r\n    }\r\n\r\n    // Array untuk menyimpan buku-buku\r\n    Buku[] public buku;\r\n\r\n    // Mapping untuk memeriksa apakah alamat adalah admin\r\n    mapping(address => bool) public isAdmin;\r\n\r\n    // Modifikasi admin untuk membatasi akses\r\n    modifier hanyaAdmin() {\r\n        require(isAdmin[msg.sender], \"Hanya admin yang bisa mengakses fungsi ini\");\r\n        _;\r\n    }\r\n\r\n    // Konstruktor untuk menginisialisasi admin awal\r\n    constructor() {\r\n        isAdmin[msg.sender] = true;\r\n    }\r\n\r\n    // Fungsi untuk menambahkan buku baru\r\n    function tambahBuku(string memory _ISBN, string memory _judul, uint256 _tahun, string memory _penulis) public hanyaAdmin {\r\n        Buku memory newBook = Buku(_ISBN, _judul, _tahun, _penulis);\r\n        buku.push(newBook);\r\n    }\r\n\r\n    // Fungsi untuk memperbarui buku berdasarkan ISBN\r\n    function updateBuku(string memory _ISBN, string memory _judul, uint256 _tahun, string memory _penulis) public hanyaAdmin {\r\n        for (uint i = 0; i < buku.length; i++) {\r\n            if (keccak256(bytes(buku[i].ISBN)) == keccak256(bytes(_ISBN))) {\r\n                buku[i].judul = _judul;\r\n                buku[i].tahunDibuat = _tahun;\r\n                buku[i].penulis = _penulis;\r\n                break;\r\n            }\r\n        }\r\n    }\r\n\r\n    struct UserDetail {\r\n        address user;\r\n        bool isPassed;\r\n        string userName;\r\n    }\r\n    UserDetail public userDetail;\r\n\r\n    mapping(address => uint256) public balance;\r\n\r\n    event UserAdded(address user);\r\n\r\n    address public owner = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;\r\n    modifier onlyOwner {\r\n        require(msg.sender == owner); \r\n        _;\r\n    }\r\n\r\n    // Fungsi untuk menghapus buku berdasarkan ISBN\r\n    function hapusBuku(string memory _ISBN) public hanyaAdmin {\r\n        for (uint i = 0; i < buku.length; i++) {\r\n            if (keccak256(bytes(buku[i].ISBN)) == keccak256(bytes(_ISBN))) {\r\n                delete buku[i];\r\n                break;\r\n            }\r\n        }\r\n    }\r\n\r\n    // Fungsi untuk mendapatkan data buku berdasarkan ISBN\r\n    function getDataBuku(string memory _ISBN) public view returns (string memory, string memory, uint256, string memory) {\r\n        for (uint i = 0; i < buku.length; i++) {\r\n            if (keccak256(bytes(buku[i].ISBN)) == keccak256(bytes(_ISBN))) {\r\n                return (buku[i].ISBN, buku[i].judul, buku[i].tahunDibuat, buku[i].penulis);\r\n            }\r\n        }\r\n        revert(\"Buku dengan ISBN tersebut tidak ditemukan\");\r\n    }\r\n}\r\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
